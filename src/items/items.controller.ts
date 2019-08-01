@@ -6,41 +6,27 @@ import {
   Delete,
   Body,
   Param
-  /*
-  Req,
-  Res
-
-   */
 } from '@nestjs/common'
 import { CreateItemDto } from './dto/create-item.dto'
 import { ItemsService } from './items.service'
 import { Item } from './interfaces/item.interface'
 
-//import {Request, Response} from "express";
+
 
 @Controller('items')
 export class ItemsController {
 
-  private readonly itemsService
+  constructor (private readonly itemsService : ItemsService) {}
 
-  constructor () {
-    this.itemsService = new ItemsService()
-  }
-
-  // @Get()
-  // findAll(@Req() req: Request, @Res() res: Response): Response {
-  //
-  //     return res.send('Hello world ' + req.url)
-  // }
   @Get()
-  findAll () : Item[] {
+  async findAll () : Promise<Item[]> {
     return this.itemsService.findAll()
 
   }
 
   @Get(':id')
-  findOne (@Param('id') id) : string {
-    return `item: ${id}`
+  async findOne (@Param('id') id) : Promise<Item> {
+    return this.itemsService.findOne(id)
   }
 
   @Post()
