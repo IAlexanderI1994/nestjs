@@ -9,7 +9,7 @@ import {
   Res
 } from '@nestjs/common'
 import { CreateItemDto } from './dto/create-item.dto'
-import { GetItemDto } from './dto/get-item.dto'
+import { ValidateObjectId } from '../pipes/validate-object-id.pipes'
 import { ItemsService } from './items.service'
 import { Item } from './interfaces/item.interface'
 import { Response } from 'express'
@@ -26,8 +26,8 @@ export class ItemsController {
   }
 
   @Get(':id')
-  async findOne (@Param() params : GetItemDto, @Res() res) : Promise<Response> {
-    const item = await this.itemsService.findOne(params.id)
+  async findOne (@Param('id', new ValidateObjectId()) id, @Res() res) : Promise<Response> {
+    const item = await this.itemsService.findOne(id)
 
     if (!item) {
       return res.status(404).json({ errors: { itemnotfound: 'Товар не найден' } })
