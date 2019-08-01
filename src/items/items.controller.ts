@@ -5,13 +5,14 @@ import {
   Put,
   Delete,
   Body,
-  Param
+  Param,
+  Res
 } from '@nestjs/common'
 import { CreateItemDto } from './dto/create-item.dto'
+import { GetItemDto } from './dto/get-item.dto'
 import { ItemsService } from './items.service'
 import { Item } from './interfaces/item.interface'
-
-
+import { Response } from 'express'
 
 @Controller('items')
 export class ItemsController {
@@ -25,23 +26,28 @@ export class ItemsController {
   }
 
   @Get(':id')
-  async findOne (@Param('id') id) : Promise<Item> {
-    return this.itemsService.findOne(id)
+  async findOne (@Param() params : GetItemDto, @Res() res) : Promise<Response> {
+    const item = await this.itemsService.findOne(params.id)
+
+    if (!item) {
+      return res.status(404).json({ errors: { itemnotfound: 'Товар не найден' } })
+    }
+    return res.json(item)
+
   }
 
   @Post()
-  create (@Body() data : CreateItemDto) : string {
-    return `Name: ${data.name}. Description: ${data.description}`
+  create (@Body() createItemDto : CreateItemDto) : Promise<Item> {
+    return this.itemsService.create(createItemDto)
   }
 
   @Delete(':id')
-  delete (@Param('id') id) : string {
-    return `delete item: ${id}`
+  delete (@Param('id') id) : Promise<Item> {
+    return this.itemsService.delete(id)
   }
 
   @Put(':id')
-  update (@Body()  data : CreateItemDto, @Param('id') id) : string {
-    return `update item: ${id} name: ${data.name}`
+  update (@Body() updateItemDto : CreateItemDto, @Param('id') id) : Promise<Item> {
+    return this.itemsService.update(id, updateItemDto)
   }
-
 }
